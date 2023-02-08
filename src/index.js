@@ -1,6 +1,19 @@
+require("dotenv").config();
 const express = require("express");
+const {Translate} = require('@google-cloud/translate').v2;
 const config = require("../config.json")
 const app = express();
+
+const translate = new Translate();
+
+async function listLanguages() {
+  const [languages] = await translate.getLanguages();
+
+  languages.forEach(language => console.log(language));
+}
+// waaaaaa
+// waaaaaa
+listLanguages();
 
 app.set('view engine', 'ejs');
 

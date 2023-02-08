@@ -13,9 +13,10 @@
     <!--Input che serve per allegare un file-->
     <input type="file" id="audioFile" required>
     <select id="languageSelect">
-      <%  Object.entries(languages).forEach(lang => { %>
-
-        <option value="<%= lang[0] %>"><%= lang[1] %></option>
+      <%  Object.entries(languages).forEach(lang => { 
+        let [key, value] = lang;
+        %>
+        <option value="<%= key %>"><%= value %></option>
       <% }) %>
     </select>
     <button type="submit">Converti da speech in text</button>
