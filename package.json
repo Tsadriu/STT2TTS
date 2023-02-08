@@ -1,0 +1,23 @@
+{
+  "name": "m152_visualstudiocode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Modulo-152/M152_VisualStudioCode.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Modulo-152/M152_VisualStudioCode/issues"
+  },
+  "homepage": "https://github.com/Modulo-152/M152_VisualStudioCode#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
