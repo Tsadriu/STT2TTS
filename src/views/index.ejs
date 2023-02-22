@@ -6,13 +6,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-  <form>
-    <!--Input che serve per allegare un file-->
-    <input type="file" id="audioFile" required>
-    <select id="languageSelect">
+  <form method="post" enctype="multipart/form-data">
+    <input type="file" id="audioFile" name="audioFile" accept="audio/*">
+    <label>Seleziona la lingua del file:</label>
+    <select class="languageSelect">
+      <%  languages.forEach(lang => {%>
+      <option value="<%= lang.code %>"><%= lang.name %></option>
+      <% }) %>
+    </select>
+    <label>Seleziona la lingua di <b>output</b>:</label>
+    <select class="languageSelect">
       <%  languages.forEach(lang => {%>
       <option value="<%= lang.code %>"><%= lang.name %></option>
       <% }) %>
@@ -20,7 +27,12 @@
     <button type="submit">Converti da speech in text</button>
   </form>
 
-  <div id="translatedText">Nessun testo tradotto.</div>
+  <div id="translatedText">
+    <label>Testo d'input:</label>
+    <div id="translatedTextInput">xxxxxxx</div>
+    <label>Testo d'output:</label>
+    <div id="translatedTextOutput">yyyyyyy</div>
+  </div>
   <script src="index.js"></script>
 </body>
 
