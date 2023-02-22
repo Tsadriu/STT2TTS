@@ -4,9 +4,16 @@ const path = require("path");
 const config = require("../config.json")
 const app = express();
 const { Translate } = require('@google-cloud/translate').v2;
-
 const translator = new Translate();
+/**
+ * Serve per gestire i file ricevuti dall'utente.
+ */
+const multer = require('multer')
+const upload = multer({ dest:'uploads/' })
 
+/** 
+ * Lista di lingue che saranno in cache.
+*/
 let languageList = {}
 
 /**
@@ -43,7 +50,15 @@ app.get('/', (req, res) => {
   });
 });
 
+/**
+ * Gestisti il sumbit del file d'audio dell'utente.
+ */
+app.post('/', upload.single('audioFile'), function (req, res, next) {
+  console.log(req.file);
+  console.log(result.transcript);
+});
+
 // Fornisci file statici dalla cartella static
 // La prima pagina è index.html, potrebbe contenere HTML
-app.use(express.static("static"));
+app.use(express.static(path.join(__dirname, 'static')))
 app.listen(config.port, onReady);
