@@ -117,6 +117,8 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
     }
     console.log(req.file);
     try {
+        // Insert FFMPEG to MP3 here
+
         // Extract text from audio
         let text = await stt(req.file.buffer);
 
@@ -126,8 +128,6 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
         // Synthetize voice from text
         let ttsData = await tts(translatedText, req.body.toLanguage)
 
-        // Insert FFMPEG to MP3 here
-
         res.setHeader("Content-Type", "audio/mp3");
         res.send(ttsData.audioContent);
     } catch (e) {
@@ -136,7 +136,6 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
         res.end();
         return;
     }
-
 });
 
 app.use(express.static('static'));
