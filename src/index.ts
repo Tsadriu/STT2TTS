@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import { v2 } from "@google-cloud/translate";
 import { SpeechClient } from "@google-cloud/speech";
+import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import bodyParser from "body-parser";
 import multer from "multer";
 
@@ -18,6 +19,8 @@ const speechClient = new SpeechClient({
     projectId: 'progetto-ats',
     keyFilename: 'credentials.json',
 });
+
+const ttsClient = new TextToSpeechClient();
 
 /**
  * Type of Language that holds the language-tag and language name.
@@ -39,6 +42,51 @@ async function translate(text: string, language?: string, from?: string): Promis
     });
 
     return data[0];
+}
+
+async function stt(buffer: string | Uint8Array): Promise<string> {
+    const [response] = await speechClient.recognize({
+        config: {
+            encoding: "ENCODING_UNSPECIFIED",
+            sampleRateHertz: 44100,
+            languageCode: 'en-US',
+            audioChannelCount: 2,
+        },
+        audio: {
+            content: buffer,
+        },
+    });
+
+    console.log(response);
+
+    if (!response.results || response.results.length == 0) {
+        throw new Error("Could not recognize voice");
+    }
+
+    const alternatives = response.results[0].alternatives;
+    if (!alternatives || alternatives.length == 0) {
+        throw new Error("Could not recognize voice");
+    }
+
+    const text = alternatives[0].transcript;
+    if (!text) {
+        throw new Error("Could not recognize voice");
+    }
+
+    return text;
+}
+
+async function tts(text: string, language: string) {
+    const ttsResponse = await ttsClient.synthesizeSpeech({
+        input: {
+            text: text,
+        },
+        voice: { languageCode: language, ssmlGender: 'NEUTRAL' },
+        audioConfig: { audioEncoding: 'MP3' },
+    });
+
+    let ttsData = ttsResponse[0];
+    return ttsData;
 }
 
 /**
@@ -63,46 +111,28 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", multer().single("audioFile"), async function (req, res) {
-   if (!req.file) {
+    if (!req.file) {
         res.status(400).send("No file provided");
         return;
     }
+    console.log(req.file);
     try {
-        const [response] = await speechClient.recognize({
-            config: {
-                encoding: "ENCODING_UNSPECIFIED",
-                sampleRateHertz: 44100,
-                languageCode: 'en-US',
-                audioChannelCount: 2,
-            },
-            audio: {
-                content: req.file.buffer,
-            },
-        });
-
-        // console.log(response);
-
-        if (!response.results || response.results.length == 0) {
-            return;
-        }
-
-        const alternatives = response.results[0].alternatives;
-        if (!alternatives || alternatives.length == 0) {
-            return;
-        }
-
-        const text = alternatives[0].transcript;
-        if (!text) {
-            return;
-        }
+        // Extract text from audio
+        let text = await stt(req.file.buffer);
 
         // Determine the selected language of the user.
         const translatedText = await translate(text, req.body.toLanguage, req.body.fromLanguage);
 
-        res.send(translatedText);
+        // Synthetize voice from text
+        let ttsData = await tts(translatedText, req.body.toLanguage)
+
+        // Insert FFMPEG to MP3 here
+
+        res.setHeader("Content-Type", "audio/mp3");
+        res.send(ttsData.audioContent);
     } catch (e) {
         console.error(e);
-        res.status(500).send("Error while processing the audio file");
+        res.status(500).send("Error while processing the audio file: " + e);
         res.end();
         return;
     }
