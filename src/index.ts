@@ -46,12 +46,12 @@ async function translate(text: string, language?: string, from?: string): Promis
     return data[0];
 }
 
-async function stt(buffer: string | Uint8Array): Promise<string> {
+async function stt(buffer: string | Uint8Array, language: string): Promise<string> {
     const [response] = await speechClient.recognize({
         config: {
             encoding: "ENCODING_UNSPECIFIED",
             sampleRateHertz: 44100,
-            languageCode: 'en-US',
+            languageCode: language,
             audioChannelCount: 2,
         },
         audio: {
@@ -120,9 +120,10 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
     console.log(req.file);
     try {
         // Insert FFMPEG to MP3 here
+        
 
         // Extract text from audio
-        let text = await stt(req.file.buffer);
+        let text = await stt(req.file.buffer, req.body.fromLanguage);
 
         // Determine the selected language of the user.
         const translatedText = await translate(text, req.body.toLanguage, req.body.fromLanguage);
