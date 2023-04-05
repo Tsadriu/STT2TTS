@@ -37,6 +37,13 @@ type Language = {
 */
 let languageList: Language[] = [];
 
+/**
+ * Translates a text from a language to another language.
+ * @param text The text of the audio.
+ * @param language The original language of the audio selected by the user.
+ * @param from The output language selected by the user.
+ * @returns 
+ */
 async function translate(text: string, language?: string, from?: string): Promise<string> {
     let data = await translateClient.translate(text, {
         from: from,
@@ -46,12 +53,12 @@ async function translate(text: string, language?: string, from?: string): Promis
     return data[0];
 }
 
-async function stt(buffer: string | Uint8Array, language: string): Promise<string> {
+async function speechToText(buffer: string | Uint8Array, language: string): Promise<string> {
     const [response] = await speechClient.recognize({
         config: {
             encoding: "ENCODING_UNSPECIFIED",
             sampleRateHertz: 44100,
-            languageCode: language,
+            languageCode: 'en-US',
             audioChannelCount: 2,
         },
         audio: {
@@ -78,7 +85,7 @@ async function stt(buffer: string | Uint8Array, language: string): Promise<strin
     return text;
 }
 
-async function tts(text: string, language: string) {
+async function textToSpeech(text: string, language: string) {
     const ttsResponse = await ttsClient.synthesizeSpeech({
         input: {
             text: text,
@@ -123,16 +130,16 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
         
 
         // Extract text from audio
-        let text = await stt(req.file.buffer, req.body.fromLanguage);
+        let textFromAudio = await speechToText(req.file.buffer, req.body.fromLanguage);
 
         // Determine the selected language of the user.
-        const translatedText = await translate(text, req.body.toLanguage, req.body.fromLanguage);
+        const translatedText = await translate(textFromAudio, req.body.toLanguage, req.body.fromLanguage);
 
         // Synthetize voice from text
-        let ttsData = await tts(translatedText, req.body.toLanguage)
+        let textToSpeechData = await textToSpeech(translatedText, req.body.toLanguage)
 
         res.setHeader("Content-Type", "audio/mp3");
-        res.send(ttsData.audioContent);
+        res.send(textToSpeechData.audioContent);
     } catch (e) {
         console.error(e);
         res.status(500).send("Error while processing the audio file: " + e);
