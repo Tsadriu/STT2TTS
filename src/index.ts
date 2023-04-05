@@ -8,8 +8,7 @@ import { SpeechClient } from "@google-cloud/speech";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import bodyParser from "body-parser";
 import multer from "multer";
-import ffmpeg from "@ffmpeg/ffmpeg";
-
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 const app = express();
 
@@ -23,6 +22,12 @@ const speechClient = new SpeechClient({
 });
 
 const ttsClient = new TextToSpeechClient();
+
+const ffmpeg = createFFmpeg({
+    log: true,
+});
+
+const upload = multer({ dest: 'uploads/' })
 
 /**
  * Type of Language that holds the language-tag and language name.
@@ -50,7 +55,7 @@ async function stt(buffer: string | Uint8Array, language: string): Promise<strin
     const [response] = await speechClient.recognize({
         config: {
             encoding: "ENCODING_UNSPECIFIED",
-            sampleRateHertz: 44100,
+            sampleRateHertz: 48000,
             languageCode: language,
             audioChannelCount: 2,
         },
@@ -120,6 +125,8 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
     console.log(req.file);
     try {
         // Insert FFMPEG to MP3 here
+        // -b:a 48k // Set output audio bitrate to 48000
+
         
 
         // Extract text from audio
