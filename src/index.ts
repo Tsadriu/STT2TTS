@@ -8,7 +8,7 @@ import { SpeechClient } from "@google-cloud/speech";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import bodyParser from "body-parser";
 import multer from "multer";
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import FFMPEG from "./ffmpeg";
 
 const app = express();
 
@@ -23,11 +23,11 @@ const speechClient = new SpeechClient({
 
 const ttsClient = new TextToSpeechClient();
 
-const ffmpeg = createFFmpeg({
-    log: true,
-});
-
 const upload = multer({ dest: 'uploads/' });
+
+if (!fs.existsSync("output")) {
+    fs.mkdirSync("output");
+}
 
 /**
  * Type of Language that holds the language-tag and language name.
@@ -72,6 +72,11 @@ async function speechToText(buffer: string | Uint8Array, language: string): Prom
     });
 
     console.log(response);
+    console.log(response.results);
+
+    if(response.results) {
+        console.log(response.results[0].alternatives)
+    }
 
     if (!response.results || response.results.length == 0) {
         throw new Error("Could not recognize voice");
@@ -124,7 +129,13 @@ app.get("/", (req, res) => {
     });
 });
 
-app.post("/", multer().single("audioFile"), async function (req, res) {
+app.get("/error", (req, res) => {
+    res.render('error', {
+        error: "AMONG US"
+    });
+});
+
+app.post("/", upload.single("audioFile"), async function (req, res) {
     if (!req.file) {
         res.status(400).send("No file provided");
         return;
@@ -133,16 +144,14 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
     try {
         // Insert FFMPEG to MP3 here
         // -b:a 48k // Set output audio bitrate to 48000
-        if (!ffmpeg.isLoaded()) {
-            await ffmpeg.load();
-        }
 
-        ffmpeg.FS("writeFile", "input.mp3", req.file.buffer);
-        await ffmpeg.run(
-            "-i", "input.mp3",
+        await FFMPEG(
+            "-i", req.file.path,
             "-b:a", "48k",
-            "output.ogg");
-        const buffer = ffmpeg.FS("readFile", "output.ogg");
+            path.resolve("uploads", `${req.file.filename}.ogg`)
+        );
+
+        const buffer = fs.readFileSync(path.resolve("uploads", `${req.file.filename}.ogg`));
 
         // Extract text from audio
         let textFromAudio = await speechToText(buffer, req.body.fromLanguage);
@@ -153,15 +162,40 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
         // Synthetize voice from text
         let textToSpeechData = await textToSpeech(translatedText, req.body.toLanguage)
 
-        res.setHeader("Content-Type", "audio/mp3");
-        res.send(textToSpeechData.audioContent);
+        // Uint8Array|string|null textToSpeechData.audioContent
+
+        fs.createWriteStream(path.resolve("output", `${req.file.filename}.mp3`)).write(textToSpeechData.audioContent);
+
+        try {
+            fs.rmSync(path.resolve("uploads", `${req.file.filename}.ogg`));
+        } catch (e) {
+            console.error(e);
+        }
+
+        res.render("result", {
+            sourceLanguage: req.body.fromLanguage,
+            targetLanguage: req.body.toLanguage,
+            sourceText: textFromAudio,
+            targetText: translatedText,
+            audioSrc: `/output/${req.file.filename}.mp3`,
+        });
     } catch (e) {
         console.error(e);
-        res.status(500).send("Error while processing the audio file: " + e);
-        res.end();
+        res.status(500);
+        res.render("error", {
+            error: e,
+        })
         return;
     }
 });
 
+app.use(express.static('output'));
 app.use(express.static('static'));
+
+app.use((req, res, next) => {
+    res.status(404).render("error", {
+        error: "404 - Pagina non trovata"
+    });
+});
+
 app.listen(process.env.port, onReady);

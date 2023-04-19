@@ -2,28 +2,32 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risultato</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-    <div>
-        Testo del file in <b>
-            <% fromLanguage % >
-        </b>: <p>
-            <% originalText % >
-        </p>.
-    </div>
-    <div>
-        Testo del file tradotto da <b class="originLanguage"></b> a <b class="outputLanguage"></b>: <p
-            class="outputAudioText"></p>.
-    </div>
-    <div>
-        Audio del file tradotto:
-    </div>
+  <div>
+    Testo del file in <b class="fromLanguage"><%= sourceLanguage %></b>:
+    <p>Testo: <span class="fromLanguageText"><%= sourceText %></span></p>
+  </div>
+  Testo del file tradotto in <b class="toLanguage"><%= targetLanguage %></b>:
+  <p><span class="toLanguageText"><%= targetText %></span></p>
+  <div>
+    Audio del file tradotto:
+    <audio></audio>
+  </div>
 </body>
 
 </html>
+
+res.render("result", {
+    sourceLanguage: req.body.fromLanguage,
+    targetLanguage: req.body.toLanguage,
+    sourceText: textFromAudio,
+    targetText: translatedText,
+    audioSrc: `/output/${req.file.filename}.mp3`,
+});

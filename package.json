@@ -19,8 +19,6 @@
   },
   "homepage": "https://github.com/Modulo-152/M152_VisualStudioCode#readme",
   "dependencies": {
-    "@ffmpeg/core": "^0.11.0",
-    "@ffmpeg/ffmpeg": "^0.11.6",
     "@google-cloud/speech": "^5.4.0",
     "@google-cloud/text-to-speech": "^4.2.1",
     "@google-cloud/translate": "^7.1.0",
