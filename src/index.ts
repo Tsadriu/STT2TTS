@@ -27,7 +27,7 @@ const ffmpeg = createFFmpeg({
     log: true,
 });
 
-const upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: 'uploads/' });
 
 /**
  * Type of Language that holds the language-tag and language name.
@@ -61,7 +61,7 @@ async function translate(text: string, language?: string, from?: string): Promis
 async function speechToText(buffer: string | Uint8Array, language: string): Promise<string> {
     const [response] = await speechClient.recognize({
         config: {
-            encoding: "ENCODING_UNSPECIFIED",
+            encoding: "OGG_OPUS",
             sampleRateHertz: 48000,
             languageCode: language,
             audioChannelCount: 2,
@@ -133,11 +133,19 @@ app.post("/", multer().single("audioFile"), async function (req, res) {
     try {
         // Insert FFMPEG to MP3 here
         // -b:a 48k // Set output audio bitrate to 48000
+        if (!ffmpeg.isLoaded()) {
+            await ffmpeg.load();
+        }
 
-        
+        ffmpeg.FS("writeFile", "input.mp3", req.file.buffer);
+        await ffmpeg.run(
+            "-i", "input.mp3",
+            "-b:a", "48k",
+            "output.ogg");
+        const buffer = ffmpeg.FS("readFile", "output.ogg");
 
         // Extract text from audio
-        let textFromAudio = await speechToText(req.file.buffer, req.body.fromLanguage);
+        let textFromAudio = await speechToText(buffer, req.body.fromLanguage);
 
         // Determine the selected language of the user.
         const translatedText = await translate(textFromAudio, req.body.toLanguage, req.body.fromLanguage);
