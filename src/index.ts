@@ -147,6 +147,7 @@ app.post("/", upload.single("audioFile"), async function (req, res) {
 
         await FFMPEG(
             "-i", req.file.path,
+            "-c:a", "libopus",
             "-b:a", "48k",
             path.resolve("uploads", `${req.file.filename}.ogg`)
         );
