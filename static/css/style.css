@@ -1,100 +1,39 @@
 body {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #242424;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-  max-width: 400px;
-}
-
-input[type="file"],
-select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  margin-bottom: 16px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-button[type="submit"] {
-  background-color: #4CAF50;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button[type="submit"]:hover {
-  background-color: #3e8e41;
-}
-
-button[type="submit"]:active {
-  background-color: #c44c28;
-}
-
-.languageSelect {
-  display: flex;
-  flex-direction: column;
+h1 {
   text-align: center;
-  color: black;
+  text-shadow: -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000;
+  font-style: italic;
 }
 
-.languageSelect option:checked {
-  background-color: #d4d1d1;
+label {
+  display: block;
+  margin: 20px 0 10px;
+  font-size: 18px;
   font-weight: bold;
 }
 
-#translatedText {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 16px;
-  padding: 8px;
-  border: 1px solid #d4d1d1;
-  border-radius: 4px;
-  min-height: 100px;
-  font-size: larger;
+mark {
+  background-color: transparent;
+  color: #2196f3;
 }
 
-.body-error {
-  background-color: #f8f8f8;
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #333;
+.authors {
+  list-style: none;
+  padding: 0;
 }
 
-.container-error {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 50px;
-  text-align: center;
+.authors li {
+    display: inline-block;
+    margin: 0 0.5rem;
+    position: relative;
+    text-align: left;
 }
 
-.p-error {
-  font-size: 24px;
-  margin-bottom: 30px;
-}
-
-.h1-error {
-  font-size: 48px;
-  margin-bottom: 30px;
-  color: #333;
-}
-
-.button-error {
-  background-color: #fc4040;
-  color: #ffffff;
-  font-size: 18px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 30px;
+footer {
+  position: absolute;
+  bottom: 0;
 }

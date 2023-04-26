@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Risultato</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+<%- include('partials/head.ejs') %>
 
 <body>
-  <div>
-    Testo del file in <b class="fromLanguage"><%= sourceLanguage %></b>:
-    <p>Testo: <span class="fromLanguageText"><%= sourceText %></span></p>
+  <h1>SPEECH TO TEXT TO SPEECH</h1>
+  <h2 class="center">Risultato</h2>
+
+  <div class="row">
+
+    <div class="column">
+      <p><b>Testo del file in <mark><%= sourceLanguage %></mark>:</b></p>
+      <p><span class="fromLanguageText"><%= sourceText %></span></p>
+    </div>
+    <div class="column">
+      <p><b>Testo del file tradotto in <mark><%= targetLanguage %></mark>:</b></p>
+      <p><span class="toLanguageText"><%= targetText %></span></p>
+    </div>
   </div>
-  Testo del file tradotto in <b class="toLanguage"><%= targetLanguage %></b>:
-  <p><span class="toLanguageText"><%= targetText %></span></p>
-  <div>
-    Audio del file tradotto:
-    <audio></audio>
+
+  <div class="row">
+    <div class="column">
+      <p><b>Audio del file tradotto:</b></p>
+      <audio controls>
+        <source src="<%= audioSrc %>" type="audio/mpeg">
+      </audio>
+    </div>
+
+    <div class="column">
+      <p>&nbsp;</p>
+      <a href="/" class="button">Torna alla pagina principale</a>
+    </div>
   </div>
+
+  <%- include('partials/footer.ejs') %>
 </body>
 
 </html>
-
-res.render("result", {
-    sourceLanguage: req.body.fromLanguage,
-    targetLanguage: req.body.toLanguage,
-    sourceText: textFromAudio,
-    targetText: translatedText,
-    audioSrc: `/output/${req.file.filename}.mp3`,
-});

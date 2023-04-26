@@ -1,39 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+<%- include('partials/head.ejs') %>
 
 <body>
+  <h1>SPEECH TO TEXT TO SPEECH</h1>
+  <h2 class="center">Converti</h2>
+
   <form method="post" enctype="multipart/form-data">
-    <input type="file" id="audioFile" name="audioFile" accept="audio/*">
-    <label>Seleziona la lingua del file:</label>
-    <select class="languageSelect" name="fromLanguage">
-      <%  languages.forEach(lang => {%>
-      <option value="<%= lang.code %>"><%= lang.name %></option>
-      <% }) %>
-    </select>
-    <label>Seleziona la lingua di <b>output</b>:</label>
-    <select class="languageSelect" name="toLanguage">
-      <%  languages.forEach(lang => {%>
-      <option value="<%= lang.code %>"><%= lang.name %></option>
-      <% }) %>
-    </select>
-    <button type="submit">Converti da speech in text</button>
+
+    <div class="row">
+
+      <div class="column">
+        <label>Seleziona la lingua d'origine del file:</label>
+        <select class="languageSelect" name="fromLanguage">
+          <%  languages.forEach(lang => {%>
+          <option value="<%= lang.code %>" <%= lang.code == "en" ? "selected" : "" %>><%= lang.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="column">
+        <label>Seleziona in quale lingua tradurre il file:</label>
+        <select class="languageSelect" name="toLanguage">
+          <%  languages.forEach(lang => {%>
+          <option value="<%= lang.code %>" <%= lang.code == "it" ? "selected" : "" %>><%= lang.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+    </div>
+
+
+    <div class="row">
+      <div class="column">
+        <label>Seleziona un file audio:</label>
+        <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+      </div>
+      <div class="column">
+        <label>&nbsp;</label>
+        <button type="submit">Converti il file</button>
+      </div>
+    </div>
+    </div>
   </form>
 
-  <div id="translatedText">
-    <label>Testo d'input:</label>
-    <div id="translatedTextInput">xxxxxxx</div>
-    <label>Testo d'output:</label>
-    <div id="translatedTextOutput">yyyyyyy</div>
-  </div>
-  <script src="index.js"></script>
+  <%- include('partials/footer.ejs') %>
 </body>
 
 </html>

@@ -23,6 +23,10 @@ const speechClient = new SpeechClient({
 
 const ttsClient = new TextToSpeechClient();
 
+if (fs.existsSync("uploads")) {
+    fs.rmSync("uploads", { recursive: true });
+}
+
 const upload = multer({ dest: 'uploads/' });
 
 if (!fs.existsSync("output")) {
@@ -41,6 +45,14 @@ type Language = {
  * Lista di lingue che saranno in cache.
 */
 let languageList: Language[] = [];
+
+function getLanguageName(code: string): string {
+    let language = languageList.find((language) => language.code == code);
+    if (!language) {
+        return code;
+    }
+    return language.name;
+}
 
 /**
  * Translates a text from a language to another language.
@@ -74,7 +86,7 @@ async function speechToText(buffer: string | Uint8Array, language: string): Prom
     console.log(response);
     console.log(response.results);
 
-    if(response.results) {
+    if (response.results) {
         console.log(response.results[0].alternatives)
     }
 
@@ -125,19 +137,35 @@ app.set('views', 'views');
 
 app.get("/", (req, res) => {
     res.render('index', {
-        languages: languageList
+        languages: languageList,
+        title: "Speech to text to speech",
     });
 });
 
 app.get("/error", (req, res) => {
     res.render('error', {
-        error: "AMONG US"
+        error: "Errore sconosciuto.",
+        title: "Errore",
+    });
+})
+
+app.get("/result", (req, res) => {
+    res.render('result', {
+        sourceLanguage: "Italiano",
+        targetLanguage: "Inglese",
+        sourceText: "Ciao, come stai?",
+        targetText: "Hello, how are you?",
+        audioSrc: "/output/1.mp3",
+        title: "Risultato",
     });
 });
 
 app.post("/", upload.single("audioFile"), async function (req, res) {
     if (!req.file) {
-        res.status(400).send("No file provided");
+        res.render('error', {
+            error: "File non fornito.",
+            title: "Errore",
+        });
         return;
     }
     console.log(req.file);
@@ -174,28 +202,31 @@ app.post("/", upload.single("audioFile"), async function (req, res) {
         }
 
         res.render("result", {
-            sourceLanguage: req.body.fromLanguage,
-            targetLanguage: req.body.toLanguage,
+            sourceLanguage: getLanguageName(req.body.fromLanguage),
+            targetLanguage: getLanguageName(req.body.toLanguage),
             sourceText: textFromAudio,
             targetText: translatedText,
             audioSrc: `/output/${req.file.filename}.mp3`,
+            title: "Risultato",
         });
     } catch (e) {
         console.error(e);
         res.status(500);
         res.render("error", {
             error: e,
+            title: "Errore",
         })
         return;
     }
 });
 
-app.use(express.static('output'));
+app.use("/output/", express.static('output'));
 app.use(express.static('static'));
 
 app.use((req, res, next) => {
     res.status(404).render("error", {
-        error: "404 - Pagina non trovata"
+        error: "404 - Pagina non trovata",
+        title: "Errore",
     });
 });
 

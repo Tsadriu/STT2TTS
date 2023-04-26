@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="it">
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Errore</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+<%- include('partials/head.ejs') %>
 
-<body class="body-error">
-  <div class="container-error">
-    <h1 class="h1-error">Oops!</h1>
-    <p class="p-error">Qualcosa è andato storto. <%= error %></p>
-    <a href="/"><button class="button-error">Torna alla pagina principale</button></a>
+<body>
+  <h1>SPEECH TO TEXT TO SPEECH</h1>
+  <h2 class="center">Oops!</h2>
+  <div class="center">
+    <p>Qualcosa è andato storto.</p>
+    <p><i>Dettaglio: <%= error %></i></p>
+    <a href="/" class="button">Torna alla pagina principale</a>
   </div>
+
+  <%- include('partials/footer.ejs') %>
 </body>
+
 </html>
