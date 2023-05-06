@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Modulo-152/M152_VisualStudioCode#readme",
   "dependencies": {
-    "@google-cloud/speech": "^5.4.0",
+    "@google-cloud/speech": "^5.4.1",
     "@google-cloud/text-to-speech": "^4.2.1",
     "@google-cloud/translate": "^7.1.0",
     "@types/express": "^4.17.17",
