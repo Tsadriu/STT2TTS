@@ -8,6 +8,7 @@ import { SpeechClient } from "@google-cloud/speech";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import bodyParser from "body-parser";
 import multer from "multer";
+import crypto from "crypto";
 import FFMPEG from "./ffmpeg";
 
 const app = express();
@@ -127,6 +128,50 @@ async function cacheLanuages() {
     [languageList] = await translateClient.getLanguages();
 }
 
+function randomString(length: number = 32) {
+    return crypto.randomBytes(length).toString('hex');
+}
+
+async function processAudio(filePath: string, fromLanguage: string, toLanguage: string) {
+    // -b:a 48k // Set output audio bitrate to 48000
+
+    let fileName = randomString();
+
+    await FFMPEG(
+        "-i", filePath,
+        "-c:a", "libopus",
+        "-b:a", "48k",
+        path.resolve("uploads", `${fileName}.ogg`)
+    );
+
+    const buffer = fs.readFileSync(path.resolve("uploads", `${fileName}.ogg`));
+
+    // Extract text from audio
+    let textFromAudio = await speechToText(buffer, fromLanguage);
+
+    // Determine the selected language of the user.
+    const translatedText = await translate(textFromAudio, toLanguage, fromLanguage);
+
+    // Synthetize voice from text
+    let textToSpeechData = await textToSpeech(translatedText, toLanguage)
+
+    // Uint8Array|string|null textToSpeechData.audioContent
+
+    fs.createWriteStream(path.resolve("output", `${fileName}.mp3`)).write(textToSpeechData.audioContent);
+
+    try {
+        fs.rmSync(path.resolve("uploads", `${fileName}.ogg`));
+    } catch (e) {
+        console.error(e);
+    }
+
+    return {
+        fileName: `${fileName}.mp3`,
+        sourceText: textFromAudio,
+        targetText: translatedText,
+    }
+}
+
 async function onReady() {
     console.log("Listening on port " + process.env.port);
     await cacheLanuages();
@@ -142,71 +187,39 @@ app.get("/", (req, res) => {
     });
 });
 
-app.get("/error", (req, res) => {
-    res.render('error', {
-        error: "Errore sconosciuto.",
-        title: "Errore",
-    });
-})
-
-app.get("/result", (req, res) => {
-    res.render('result', {
-        sourceLanguage: "Italiano",
-        targetLanguage: "Inglese",
-        sourceText: "Ciao, come stai?",
-        targetText: "Hello, how are you?",
-        audioSrc: "/output/1.mp3",
-        title: "Risultato",
-    });
-});
-
 app.post("/", upload.single("audioFile"), async function (req, res) {
-    if (!req.file) {
+    if (!req.file && req.body.recordId === "") {
         res.render('error', {
             error: "File non fornito.",
             title: "Errore",
         });
         return;
     }
-    console.log(req.file);
+
     try {
-        // Insert FFMPEG to MP3 here
-        // -b:a 48k // Set output audio bitrate to 48000
+        let filePath;
 
-        await FFMPEG(
-            "-i", req.file.path,
-            "-c:a", "libopus",
-            "-b:a", "48k",
-            path.resolve("uploads", `${req.file.filename}.ogg`)
-        );
-
-        const buffer = fs.readFileSync(path.resolve("uploads", `${req.file.filename}.ogg`));
-
-        // Extract text from audio
-        let textFromAudio = await speechToText(buffer, req.body.fromLanguage);
-
-        // Determine the selected language of the user.
-        const translatedText = await translate(textFromAudio, req.body.toLanguage, req.body.fromLanguage);
-
-        // Synthetize voice from text
-        let textToSpeechData = await textToSpeech(translatedText, req.body.toLanguage)
-
-        // Uint8Array|string|null textToSpeechData.audioContent
-
-        fs.createWriteStream(path.resolve("output", `${req.file.filename}.mp3`)).write(textToSpeechData.audioContent);
-
-        try {
-            fs.rmSync(path.resolve("uploads", `${req.file.filename}.ogg`));
-        } catch (e) {
-            console.error(e);
+        if (req.body.recordId !== "") {
+            filePath = `uploads/${req.body.recordId}.ogg`;
+        } else if (req.file) {
+            filePath = req.file.path
+        } else {
+            res.status(500);
+            res.render("error", {
+                error: "File non fornito.",
+                title: "Errore",
+            })
+            return;
         }
+
+        let result = await processAudio(filePath, req.body.fromLanguage, req.body.toLanguage);
 
         res.render("result", {
             sourceLanguage: getLanguageName(req.body.fromLanguage),
             targetLanguage: getLanguageName(req.body.toLanguage),
-            sourceText: textFromAudio,
-            targetText: translatedText,
-            audioSrc: `/output/${req.file.filename}.mp3`,
+            sourceText: result.sourceText,
+            targetText: result.targetText,
+            audioSrc: `/output/${result.fileName}`,
             title: "Risultato",
         });
     } catch (e) {
@@ -219,6 +232,17 @@ app.post("/", upload.single("audioFile"), async function (req, res) {
         return;
     }
 });
+
+app.post("/uploadblob", express.raw({ type: "audio/*" }), async function (req, res) {
+    let buffer = req.body;
+    let fileId = randomString();
+    fs.writeFileSync(path.resolve("uploads", `${fileId}.ogg`), buffer);
+
+    res.json({
+        ok: true,
+        fileId: fileId,
+    });
+})
 
 app.use("/output/", express.static('output'));
 app.use(express.static('static'));

@@ -3,49 +3,61 @@
 
 <%- include('partials/head.ejs') %>
 
-<body>
-  <h1>SPEECH TO TEXT TO SPEECH</h1>
-  <h2 class="center">Converti</h2>
+  <body>
+    <h1>SPEECH TO TEXT TO SPEECH</h1>
+    <h2 class="center">Converti</h2>
 
-  <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
 
-    <div class="row">
+      <div class="row">
 
-      <div class="column">
-        <label>Seleziona la lingua d'origine del file:</label>
-        <select class="languageSelect" name="fromLanguage">
-          <%  languages.forEach(lang => {%>
-          <option value="<%= lang.code %>" <%= lang.code == "en" ? "selected" : "" %>><%= lang.name %></option>
-          <% }) %>
-        </select>
+        <div class="column">
+          <label>Seleziona la lingua d'origine del file:</label>
+          <select class="languageSelect" name="fromLanguage">
+            <% languages.forEach(lang=> {%>
+              <option value="<%= lang.code %>" <%=lang.code=="en" ? "selected" : "" %>><%= lang.name %>
+              </option>
+              <% }) %>
+          </select>
+        </div>
+
+        <div class="column">
+          <label>Seleziona in quale lingua tradurre il file:</label>
+          <select class="languageSelect" name="toLanguage">
+            <% languages.forEach(lang=> {%>
+              <option value="<%= lang.code %>" <%=lang.code=="it" ? "selected" : "" %>><%= lang.name %>
+              </option>
+              <% }) %>
+          </select>
+        </div>
+
       </div>
 
-      <div class="column">
-        <label>Seleziona in quale lingua tradurre il file:</label>
-        <select class="languageSelect" name="toLanguage">
-          <%  languages.forEach(lang => {%>
-          <option value="<%= lang.code %>" <%= lang.code == "it" ? "selected" : "" %>><%= lang.name %></option>
-          <% }) %>
-        </select>
+
+      <div class="row">
+        <div class="column">
+          <label>Seleziona un file audio:</label>
+          <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+        </div>
+        <div class="column">
+          <label>Oppure registra audio:</label>
+          <button type="button" id="recordBtn">Registra</button>
+          <input type="hidden" name="recordId" id="recordId" value="">
+        </div>
       </div>
 
-    </div>
-
-
-    <div class="row">
-      <div class="column">
-        <label>Seleziona un file audio:</label>
-        <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+      <div class="row">
+        <div class="column">
+          <label>&nbsp;</label>
+          <button type="submit">Converti il file</button>
+        </div>
       </div>
-      <div class="column">
-        <label>&nbsp;</label>
-        <button type="submit">Converti il file</button>
-      </div>
-    </div>
-    </div>
-  </form>
 
-  <%- include('partials/footer.ejs') %>
-</body>
+    </form>
+
+    <%- include('partials/footer.ejs') %>
+
+      <script src="/js/recorder.js"></script>
+  </body>
 
 </html>
