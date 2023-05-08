@@ -81,6 +81,8 @@ async function speechToText(buffer: string | Uint8Array, language: string): Prom
             sampleRateHertz: 48000,
             languageCode: language,
             audioChannelCount: 2,
+            enableAutomaticPunctuation: true,
+            model: "default",
         },
         audio: {
             content: buffer,
@@ -89,10 +91,6 @@ async function speechToText(buffer: string | Uint8Array, language: string): Prom
 
     console.log(response);
     console.log(response.results);
-
-    if (response.results) {
-        console.log(response.results[0].alternatives)
-    }
 
     if (!response.results || response.results.length == 0) {
         throw new Error("Could not recognize voice");
@@ -137,6 +135,7 @@ function randomString(length: number = 32) {
 
 async function processAudio(filePath: string, fromLanguage: string, toLanguage: string) {
     // -b:a 48k // Set output audio bitrate to 48000
+    // 16k is 16000Hz
 
     let fileName = randomString();
 
