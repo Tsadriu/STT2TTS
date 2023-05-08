@@ -89,9 +89,6 @@ async function speechToText(buffer: string | Uint8Array, language: string): Prom
         },
     });
 
-    console.log(response);
-    console.log(response.results);
-
     if (!response.results || response.results.length == 0) {
         throw new Error("Could not recognize voice");
     }
