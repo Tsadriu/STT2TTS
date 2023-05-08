@@ -42,3 +42,11 @@ footer {
   pointer-events: none;
   opacity: 0.4;
 }
+
+.brand-logo {
+  display: block;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 3%;
+}
