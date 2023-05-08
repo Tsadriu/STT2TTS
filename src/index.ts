@@ -182,7 +182,7 @@ app.set('views', 'views');
 app.get("/", (req, res) => {
     res.render('index', {
         languages: languageList,
-        title: "Speech to text to speech",
+        title: "STT2TTS",
     });
 });
 
