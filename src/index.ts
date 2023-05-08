@@ -13,7 +13,10 @@ import FFMPEG from "./ffmpeg";
 
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({
+    extended: true,
+    limit: "12mb",
+}));
 
 const translateClient = new v2.Translate();
 
@@ -233,7 +236,7 @@ app.post("/", upload.single("audioFile"), async function (req, res) {
     }
 });
 
-app.post("/uploadblob", express.raw({ type: "audio/*" }), async function (req, res) {
+app.post("/uploadblob", express.raw({ type: "audio/*", limit: "128mb"}), async function (req, res) {
     let buffer = req.body;
     let fileId = randomString();
     fs.writeFileSync(path.resolve("uploads", `${fileId}.ogg`), buffer);

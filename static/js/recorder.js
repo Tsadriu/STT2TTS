@@ -48,7 +48,8 @@ async function record() {
 }
 
 async function upload() {
-    let blob = chunks[0];
+    let blob = chunks.at(-1);
+    console.log(blob.size);
     let res = await fetch("/uploadblob", {
         method: "POST",
         body: chunks[0],
