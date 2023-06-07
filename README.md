@@ -1,7 +1,9 @@
 # Speech To Text 2 Text To Speech (STT2TTS)
 
-This is a small school project composed by [Tsadriu](https://tsadriu.dev), [AlexDevs](https://alexdevs.me) and Zina Gharsalloui.
-
+This is a small school project composed by [Tsadriu](https://tsadriu.dev), [AlexDevs](https://alexdevs.me) and Zina Gharsalloui.<br/>
+<div align="center">
+<h2><i>If you wanna fork this project, you need to setup a Google Cloud Project because we have shut down this one.</i></h2>
+</div>
 
 # What does it do?
 
